@@ -1,0 +1,81 @@
+library(GA)
+attach(mtcars)
+
+
+# GA com uma dimensão
+f = function(x){ log(x)+cos(x) }
+lbound = -10
+ubound = 10
+
+curve(f, from = lbound, to = ubound, n = 1000)
+
+GA <- ga(type = "real-valued", fitness = function(x) f(x), lower = lbound, upper = ubound)
+summary(GA)
+plot(GA)
+
+
+curve(f, from = lbound, to = ubound, n = 1000)
+points(GA@solution, GA@fitnessValue, col = 2, pch = 19)
+
+
+# GA com duas dimensões
+f = function(x1, x2){20 + cos(x1) + cos(x2) - 10}
+
+x1<-x2<-seq(-5.12,5.12, by=0.1)
+length(x1)
+
+f_out<-outer(x1,x2,f)
+
+persp3D(x1, x2, f_out, theta = 50, phi = 20, col.palette = bl2gr.colors)
+filled.contour(x1, x2, f_out, color.palette = bl2gr.colors)
+
+
+GA <- ga(type = "real-valued", 
+         fitness =  function(x) +f(x[1], x[2]), # o sinal de + ou - define se a fitness function encontrará o máximo ou mínimo da função objetivo.
+         lower = c(-5.12, -5.12), upper = c(5.12, 5.12), 
+         popSize = 50, maxiter = 1000, run = 100)
+
+summary(GA)
+plot(GA)
+
+
+filled.contour(x1, x2, f_out, color.palette = bl2gr.colors, 
+               plot.axes = {axis(1); axis(2); 
+                 points(GA@solution[,1], GA@solution[,2], 
+                        pch = 3, cex = 2, col = "white", lwd = 2)})
+
+
+
+# GA com três dimensões ou mais
+f = function(x1, x2, x3){ y = 20 + cos(x1) + cos(x2) +cos(x3) - 10
+return(y)
+}
+
+x1<-x2<-x3<-seq(-5.12,5.12,0.1)
+
+f_out<-do.call(f, list(x1,x2,x3))
+
+data.frame(f_out,x1,x2,x3)
+
+# Algoritmo para identificar o mínimo ótimo
+GA <- ga(type = "real-valued",
+         fitness =  function(x) -f(x[1], x[2], x[3]), # o sinal de + ou - define se a fitness function encontrará o máximo ou mínimo da função objetivo.
+         lower = c(-5.12, -5.12, -5.12), upper = c(5.12, 5.12, 5.12), 
+         popSize = 103, maxiter = 1000, run = 100)
+
+
+summary(GA)
+plot(GA)
+
+
+filled.contour(x1, x2, f_out, color.palette = bl2gr.colors, 
+               plot.axes = {axis(1); axis(2); 
+                 points(GA@solution[,1], GA@solution[,2], 
+                        pch = 3, cex = 2, col = "white", lwd = 2)})
+
+# Solução
+GA@solution
+f(3.141142,-3.141466,3.140939)
+
+GA@fitnessValue
+
